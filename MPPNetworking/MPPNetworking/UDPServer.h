@@ -4,9 +4,11 @@
 class UDPServer
 {
 private:
-	Game game;
+	Game* game;
 
 public:
+	UDPServer();
 	void InitGame();
-
+	void GameLoop();
+	void Cleanup();
 };

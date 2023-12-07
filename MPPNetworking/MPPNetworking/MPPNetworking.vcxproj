@@ -23,6 +23,8 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="UDPClient.cpp" />
+    <ClCompile Include="UDPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
@@ -49,6 +51,8 @@
     <ClInclude Include="rapidjson\stringbuffer.h" />
     <ClInclude Include="rapidjson\uri.h" />
     <ClInclude Include="rapidjson\writer.h" />
+    <ClInclude Include="UDPClient.h" />
+    <ClInclude Include="UDPServer.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\arial.ttf" />

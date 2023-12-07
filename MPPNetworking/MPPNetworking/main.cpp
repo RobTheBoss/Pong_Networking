@@ -25,8 +25,35 @@ int main(int argc, char* argv[]) {
     }
 
     Game game;
-    int initGaame = game.initialize();
-    if(initGaame != 0){
+
+    while (true)
+    {
+        char serverInput[1024];
+        memset(serverInput, 0, sizeof(serverInput));
+
+        // Read user input
+        if (fgets(serverInput, sizeof(serverInput), stdin) == NULL) {
+            break;  // Exit the loop on EOF or error
+        }
+
+        // Remove newline character at the end of the input
+        size_t len = strlen(serverInput);
+        if (len > 0 && serverInput[len - 1] == '\n') {
+            serverInput[len - 1] = '\0';
+        }
+
+        if (strcmp(serverInput, "H") == 0) {
+            printf("You are the host.\n");
+            break;  // Exit the loop if the user enters 'quit'
+        }
+        else if (strcmp(serverInput, "C") == 0) {
+            printf("You are the client.\n");
+            break;  // Exit the loop if the user enters 'quit'
+        }
+    }
+
+    int initGame = game.initialize();
+    if(initGame != 0){
         std::cout << "Game could not be initialized!" << std::endl;
         return 1;
     }

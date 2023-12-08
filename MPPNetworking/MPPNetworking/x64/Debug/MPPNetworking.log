@@ -16,6 +16,11 @@ C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\
 C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.h(33,61): error C2039: 'endl': is not a member of 'std'
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt\stddef.h(23,15): message : see declaration of 'std'
 C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.h(33,61): error C2065: 'endl': undeclared identifier
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\UDPClient.cpp(149,42): error C2065: 'SQUARE_SIZE': undeclared identifier
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\UDPClient.cpp(149,55): error C2065: 'SQUARE_SIZE': undeclared identifier
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\UDPClient.cpp(159,57): error C2065: 'SQUARE_SIZE': undeclared identifier
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\UDPClient.cpp(159,70): error C2065: 'SQUARE_SIZE': undeclared identifier
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\UDPClient.cpp(126,19): fatal  error C1075: '{': no matching token found
   UDPServer.cpp
 C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.h(31,10): error C2039: 'cout': is not a member of 'std'
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt\stddef.h(23,15): message : see declaration of 'std'

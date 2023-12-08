@@ -1,41 +1,13 @@
-#include <iostream>
-#include <string>
 #include "rapidjson/writer.h"
 #include "Game.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
-#include <iostream>
 #include <string>
-#include <sstream>
+#include <iostream>
 #include <thread>
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
 
-// Function to parse a UDP packet and extract x and y values
-bool parseUDPPacket(UDPpacket* packet, int& y, int& ballX, int& ballY) {
-    if (packet && packet->data) {
-        std::string packetData(reinterpret_cast<char*>(packet->data));
-
-        rapidjson::Document document;
-        document.Parse(packetData.c_str());
-
-        if (!document.IsObject() || !document.HasMember("y")) {
-            return false;
-        }
-
-        
-        y = document["y"].GetInt();
-
-        return true;
-    }
-
-    return false;
-}
-
-
-
-
+const int TARGET_FPS = 60;
+const int DELAY_TIME = 1000 / TARGET_FPS;
 
 Ball ball(Game::SCREEN_WIDTH, Game::SCREEN_HEIGHT);
 
@@ -43,29 +15,32 @@ Game::Game(bool isHost_) : window(nullptr), renderer(nullptr), isRunning(false) 
     isHost = isHost_;
 }
 
-int Game::initialize() {
+int Game::init(UDPsocket& udpSocket, IPaddress& serverIP)
+{
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        SDL_Log("SDL initialization failed: %s", SDL_GetError());
+        return 1;
+    }
 
     window = SDL_CreateWindow("Pong in SDL2",
-                              SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED,
-                              SCREEN_WIDTH, SCREEN_HEIGHT,
-                              SDL_WINDOW_SHOWN);
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        SCREEN_WIDTH, SCREEN_HEIGHT,
+        SDL_WINDOW_SHOWN);
     if (!window) {
         std::cout << "Window could not be created!" << std::endl
-                  << "SDL_Error: " << SDL_GetError() << std::endl;
+            << "SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
-    } 
-    
-   
+    }
+
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cout << "Renderer could not be created!" << std::endl
-                    << "SDL_Error: " << SDL_GetError() << std::endl;
+            << "SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
-    } 
-    
-    ///SERVER
-    ///////////////////////
+    }
+
     if (SDLNet_Init() < 0) {
         SDL_Log("SDLNet initialization failed: %s", SDLNet_GetError());
         SDL_DestroyRenderer(renderer);
@@ -74,7 +49,6 @@ int Game::initialize() {
         return 1;
     }
 
-    UDPsocket udpSocket;
     if (isHost)
         udpSocket = SDLNet_UDP_Open(8080);
     else
@@ -88,12 +62,19 @@ int Game::initialize() {
         SDL_Quit();
         return 1;
     }
-    ///////////////////////
 
-    isRunning = true;
-    player1.innit(true);
-    player2.innit(false);
-    ball.innit();
+    if (!isHost)
+    {
+
+        if (SDLNet_ResolveHost(&serverIP, "127.0.0.1", 8080) < 0) {
+            std::cerr << "SDLNet_ResolveHost error: " << SDLNet_GetError() << std::endl;
+            SDLNet_UDP_Close(udpSocket);
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return 1;
+        }
+    }
 
     //font = TTF_OpenFont("../resources/arial.ttf", 50);
     font = TTF_OpenFont("resources/arial.ttf", 50);
@@ -101,7 +82,7 @@ int Game::initialize() {
         std::cout << "TTF_OpenFont() failed: " << TTF_GetError() << std::endl;
     }
 
-    SDL_Color textColor = {0, 0, 0, 0xFF}; // Adjust the text color as needed
+    SDL_Color textColor = { 0, 0, 0, 0xFF }; // Adjust the text color as needed
     textSurface = TTF_RenderText_Solid(font, "PONG IN SDL2!", textColor);
     if (!textSurface) {
         std::cout << "TTF_RenderText_Solid() failed: " << TTF_GetError() << std::endl;
@@ -118,9 +99,55 @@ int Game::initialize() {
     // Calculate the centered position for the text horizontally
     int textWidth = textSurface->w;
     int centerX = (SCREEN_WIDTH - textWidth) / 2;
-    textRect = {centerX, 0, textWidth, textSurface->h};
+    textRect = { centerX, 0, textWidth, textSurface->h };
 
     return 0;
+}
+
+int Game::startGame() {
+    UDPsocket udpSocket;
+    IPaddress serverIP;
+
+    init(udpSocket, serverIP);
+
+    bool quit = false;
+
+    std::thread sendThread(&Game::SendData, this, udpSocket, serverIP, std::ref(quit));
+    std::thread receiveThread(&Game::ReceiveData, this, udpSocket, serverIP, std::ref(quit));
+
+    isRunning = true;
+    player1.innit(true);
+    player2.innit(false);
+    ball.innit();
+
+    SDL_Event e; // Create an SDL event to handle events
+
+    while (isRunning)
+    {
+        Uint32 frameStart = SDL_GetTicks();
+
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                isRunning = false; // Exit the loop if the window is closed
+            }
+            handleEvents(e); // Handle player input
+        }
+
+        update();
+        render();
+
+        Uint32 frameTime = SDL_GetTicks() - frameStart;
+        if (frameTime < DELAY_TIME) {
+            SDL_Delay(DELAY_TIME - frameTime);
+        }
+    }
+
+    sendThread.join();
+    receiveThread.join();
+
+    cleanup();
+
+    return 1;
 }
 
 void Game::cleanup() {
@@ -135,32 +162,35 @@ void Game::cleanup() {
 void Game::handleEvents(SDL_Event &e) {
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
         switch (e.key.keysym.sym) {
-            case SDLK_UP:
-                player1.move(true);
-                break;
-            case SDLK_DOWN:
-                player1.move(false);
-                break;
-           /* case SDLK_w:
-                player1.move(true);
-                break;
-            case SDLK_s:
-                player1.move(false);
-                break;*/
+            if (isHost)
+            { 
+                case SDLK_UP:
+                    if (isHost)
+                        player1.move(true);
+                    else
+                        player2.move(true);
+                    break;
+                case SDLK_DOWN:
+                    if (isHost)
+                        player1.move(false);
+                    else
+                        player2.move(false);
+                    break;
+            }
         }
     } else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
         switch (e.key.keysym.sym) {
             case SDLK_UP:
-                player1.stopMoving();
+                if (isHost)
+                    player1.stopMoving();
+                else
+                    player2.stopMoving();
                 break;
             case SDLK_DOWN:
-                player1.stopMoving();
-                break;
-            case SDLK_w:
-                player1.stopMoving();
-                break;
-            case SDLK_s:
-                player1.stopMoving();
+                if (isHost)
+                    player1.stopMoving();
+                else
+                    player2.stopMoving();
                 break;
         }
     }
@@ -184,28 +214,18 @@ void Game::update() {
         checkForWallCollision();
     }
     ball.update();
-
-    // Render game objects (e.g., players, ball, background)
-    render();
-
-    // Update screen
-    SDL_RenderPresent(renderer);
 }
 
 void Game::render() {
-
-
-
     renderStartText();
-    
-
     
     player1.render(renderer);
     player2.render(renderer);
     ball.render(renderer);
     renderText();
     
-
+    // Update screen
+    SDL_RenderPresent(renderer);
 }
 
 
@@ -240,6 +260,22 @@ void Game::checkForWallCollision() {
         Game::setPlayer1Score(score + 1);
         //addPointsToPlayerA();  // Add points to player A (or your scoring mechanism)
         ball.innit();    // Reset the ball's position to the center
+    }
+}
+
+void Game::ReceiveData(UDPsocket udpSocket_, IPaddress ip_, bool& quit)
+{
+    while (!quit)
+    {
+
+    }
+}
+
+void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, bool& quit)
+{
+    while (!quit)
+    {
+
     }
 }
 

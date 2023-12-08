@@ -8,7 +8,7 @@
 const int TARGET_FPS = 60;
 const int DELAY_TIME = 1000 / TARGET_FPS;
 
-void InitGame(Game* game_) {
+void StartGame(Game* game_) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not be initialized!" << std::endl
@@ -23,44 +23,15 @@ void InitGame(Game* game_) {
         return;
     }
 
-    int initGame = game_->initialize();
+    int initGame = game_->startGame();
     if (initGame != 0) {
         std::cout << "Game could not be initialized!" << std::endl;
     }
 }
 
-void GameLoop(Game* game_)
-{
-    SDL_Event e; // Create an SDL event to handle events
-
-    while (game_->isRunning) {
-        Uint32 frameStart = SDL_GetTicks();
-
-        while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                game_->isRunning = false; // Exit the loop if the window is closed
-            }
-            game_->handleEvents(e); // Handle player input
-        }
-
-        game_->update();
-        game_->render();
-
-        Uint32 frameTime = SDL_GetTicks() - frameStart;
-        if (frameTime < DELAY_TIME) {
-            SDL_Delay(DELAY_TIME - frameTime);
-        }
-    }
-}
-
-void Cleanup(Game* game_)
-{
-    game_->cleanup();
-
-    SDL_Quit();
-}
-
 bool Setup() {
+
+    std::cout << "H for host, C for client" << std::endl;
     while (1)
     {
         char serverInput[1024];
@@ -98,9 +69,7 @@ int main(int argc, char* argv[]) {
 
     Game* game = new Game(isHost);;
 
-    InitGame(game);
-    GameLoop(game);
-    Cleanup(game);
+    StartGame(game);
 
     return 1;
 }

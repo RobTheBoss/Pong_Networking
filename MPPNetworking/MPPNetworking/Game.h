@@ -1,13 +1,10 @@
 #pragma once
 #include <SDL2/SDL_ttf.h>
-#include "Player.h"
-#include "Ball.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
+#include "Player.h"
+#include "Ball.h"
 #include <iostream>
-#include <cstring>
-#include <sstream>
-#include <thread>
 
 class Game {
 private:
@@ -31,7 +28,9 @@ public:
 
     ~Game() = default;
 
-    int initialize();
+    int init(UDPsocket& udpSocket, IPaddress& serverIP);
+
+    int startGame();
 
     void cleanup();
 
@@ -60,4 +59,7 @@ public:
 
     bool checkForPaddleCollision(SDL_Rect paddle);
     void checkForWallCollision();
+
+    void ReceiveData(UDPsocket udpSocket_, IPaddress ip_, bool &quit);
+    void SendData(UDPsocket udpSocket_, IPaddress ip_, bool &quit);
 };

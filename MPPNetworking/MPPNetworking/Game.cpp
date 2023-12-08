@@ -7,14 +7,6 @@
 #include <string>
 #include <iostream>
 
-struct position
-{
-    
-    int y;
-};
-
-position client;
-position server;
 
 void init(UDPsocket& udpSocket, IPaddress& serverIP, const char* host, Uint16 port)
 {

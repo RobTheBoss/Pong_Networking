@@ -4,35 +4,33 @@
 #include "Game.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
-#include <string>
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <thread>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
+// Function to parse a UDP packet and extract x and y values
+bool parseUDPPacket(UDPpacket* packet, int& y, int& ballX, int& ballY) {
+    if (packet && packet->data) {
+        std::string packetData(reinterpret_cast<char*>(packet->data));
 
-void init(UDPsocket& udpSocket, IPaddress& serverIP, const char* host, Uint16 port)
-{
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
+        rapidjson::Document document;
+        document.Parse(packetData.c_str());
+
+        if (!document.IsObject() || !document.HasMember("y")) {
+            return false;
+        }
+
+        
+        y = document["y"].GetInt();
+
+        return true;
     }
 
-    if (SDLNet_Init() < 0) {
-        std::cerr << "SDLNet initialization failed: " << SDLNet_GetError() << std::endl;
-        SDL_Quit();
-    }
-
-    udpSocket = SDLNet_UDP_Open(0);
-
-    if (!udpSocket) {
-        std::cerr << "SDLNet_UDP_Open error: " << SDLNet_GetError() << std::endl;
-        SDLNet_Quit();
-        SDL_Quit();
-    }
-
-    if (SDLNet_ResolveHost(&serverIP, host, port) < 0) {
-        std::cerr << "SDLNet_ResolveHost error: " << SDLNet_GetError() << std::endl;
-        SDLNet_UDP_Close(udpSocket);
-        SDLNet_Quit();
-        SDL_Quit();
-    }
+    return false;
 }
 
 

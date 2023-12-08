@@ -110,7 +110,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\Users\Robert\vcpkg\packages\sdl2-ttf_x64-windows\debug\lib;C:\Users\Robert\vcpkg\packages\sdl2-net_x64-windows\debug\lib;C:\Users\Robert\vcpkg\packages\sdl2_x64-windows\debug\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Zavio\Desktop\networking last project\vcpkg\packages\sdl2-ttf_x64-windows\debug\lib;C:\Users\Zavio\Desktop\networking last project\vcpkg\packages\sdl2-net_x64-windows\debug\lib;C:\Users\Zavio\Desktop\networking last project\vcpkg\packages\sdl2_x64-windows\debug\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -8,58 +8,61 @@
 Ball ball(Game::SCREEN_WIDTH, Game::SCREEN_HEIGHT);
 
 Game::Game() : window(nullptr), renderer(nullptr), isRunning(false) {
+    
 }
 
 int Game::initialize() {
 
     window = SDL_CreateWindow("Pong in SDL2",
-                              SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
                               SCREEN_WIDTH, SCREEN_HEIGHT,
                               SDL_WINDOW_SHOWN);
+
     if (!window) {
         std::cout << "Window could not be created!" << std::endl
                   << "SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
-    } else {
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        if (!renderer) {
-            std::cout << "Renderer could not be created!" << std::endl
-                      << "SDL_Error: " << SDL_GetError() << std::endl;
-            return 1;
-        } else {
-            isRunning = true;
-            player1.innit(true);
-            player2.innit(false);
-            ball.innit();
+    } 
+    
+   
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer) {
+        std::cout << "Renderer could not be created!" << std::endl
+                    << "SDL_Error: " << SDL_GetError() << std::endl;
+        return 1;
+    } 
+    
+    isRunning = true;
+    player1.innit(true);
+    player2.innit(false);
+    ball.innit();
 
-            //font = TTF_OpenFont("../resources/arial.ttf", 50);
-            font = TTF_OpenFont("resources/arial.ttf", 50);
-            if (!font) {
-                std::cout << "TTF_OpenFont() failed: " << TTF_GetError() << std::endl;
-            }
-
-            SDL_Color textColor = {0, 0, 0, 0xFF}; // Adjust the text color as needed
-            textSurface = TTF_RenderText_Solid(font, "PONG IN SDL2!", textColor);
-            if (!textSurface) {
-                std::cout << "TTF_RenderText_Solid() failed: " << TTF_GetError() << std::endl;
-                return 1;
-            }
-
-            // Create text texture
-            textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-            if (!textTexture) {
-                std::cout << "SDL_CreateTextureFromSurface() failed: " << SDL_GetError() << std::endl;
-                return 1;
-            }
-
-            // Calculate the centered position for the text horizontally
-            int textWidth = textSurface->w;
-            int centerX = (SCREEN_WIDTH - textWidth) / 2;
-            textRect = {centerX, 0, textWidth, textSurface->h};
-
-        }
+    //font = TTF_OpenFont("../resources/arial.ttf", 50);
+    font = TTF_OpenFont("resources/arial.ttf", 50);
+    if (!font) {
+        std::cout << "TTF_OpenFont() failed: " << TTF_GetError() << std::endl;
     }
+
+    SDL_Color textColor = {0, 0, 0, 0xFF}; // Adjust the text color as needed
+    textSurface = TTF_RenderText_Solid(font, "PONG IN SDL2!", textColor);
+    if (!textSurface) {
+        std::cout << "TTF_RenderText_Solid() failed: " << TTF_GetError() << std::endl;
+        return 1;
+    }
+
+    // Create text texture
+    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (!textTexture) {
+        std::cout << "SDL_CreateTextureFromSurface() failed: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    // Calculate the centered position for the text horizontally
+    int textWidth = textSurface->w;
+    int centerX = (SCREEN_WIDTH - textWidth) / 2;
+    textRect = {centerX, 0, textWidth, textSurface->h};
+
     return 0;
 }
 

@@ -117,8 +117,8 @@ void handleNetwork(UDPsocket udpSocket) {
 
 // Function to handle drawing
 void handleDrawing(SDL_Renderer* renderer) {
-   ;
-   
+
+
 
     bool quit = false;
     SDL_Event e;
@@ -136,27 +136,29 @@ void handleDrawing(SDL_Renderer* renderer) {
                 case SDLK_DOWN:
                     squareY += 10;
                     break;
-                
+
                 }
             }
         }
-       
-        server_square.ypos = squareY;
+    }
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+    server_square.ypos = squareY;
 
-        SDL_Rect squareRect = { squareY, SQUARE_SIZE, SQUARE_SIZE };
-        //SDL_Rect squareRect = {server_square.xpos, server_square.ypos, SQUARE_SIZE, SQUARE_SIZE};
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &squareRect);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_Rect squareRect = { squareY };
+    //SDL_Rect squareRect = {server_square.xpos, server_square.ypos, SQUARE_SIZE, SQUARE_SIZE};
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &squareRect);
 
 
-        std::cout << "\nClient Position: y=" << client_ypos << std::endl;
-        if (client_ypos != 0)
-        {
-            //SDL_Rect squareRect_client = { client_square.xpos, client_square.ypos, SQUARE_SIZE, SQUARE_SIZE };
-            SDL_Rect squareRect_client = { client_ypos, SQUARE_SIZE, SQUARE_SIZE };
+    std::cout << "\nClient Position: y=" << client_ypos << std::endl;
+    if (client_ypos != 0)
+    {
+        //SDL_Rect squareRect_client = { client_square.xpos, client_square.ypos, SQUARE_SIZE, SQUARE_SIZE };
+        SDL_Rect squareRect_client = { client_ypos };
 
-            SDL_RenderFillRect(renderer, &squareRect_client);
-        }
+        SDL_RenderFillRect(renderer, &squareRect_client);
+    }
+}

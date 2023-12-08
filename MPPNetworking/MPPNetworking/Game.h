@@ -1,6 +1,8 @@
+#pragma once
 #include <SDL2/SDL_ttf.h>
 #include "Player.h"
 #include "Ball.h"
+#include <iostream>
 
 class Game {
 public:
@@ -42,8 +44,8 @@ public:
     void checkForWallCollision();
 
 private:
-    SDL_Window *window;
-    SDL_Renderer *renderer;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
     Player player1 = Player(SCREEN_WIDTH, SCREEN_HEIGHT);
     Player player2 = Player(SCREEN_WIDTH, SCREEN_HEIGHT);
 

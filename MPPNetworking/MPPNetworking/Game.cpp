@@ -2,6 +2,48 @@
 #include <string>
 #include "rapidjson/writer.h"
 #include "Game.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_net.h>
+#include <string>
+#include <iostream>
+
+struct position
+{
+    
+    int y;
+};
+
+position client;
+position server;
+
+void init(UDPsocket& udpSocket, IPaddress& serverIP, const char* host, Uint16 port)
+{
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
+    }
+
+    if (SDLNet_Init() < 0) {
+        std::cerr << "SDLNet initialization failed: " << SDLNet_GetError() << std::endl;
+        SDL_Quit();
+    }
+
+    udpSocket = SDLNet_UDP_Open(0);
+
+    if (!udpSocket) {
+        std::cerr << "SDLNet_UDP_Open error: " << SDLNet_GetError() << std::endl;
+        SDLNet_Quit();
+        SDL_Quit();
+    }
+
+    if (SDLNet_ResolveHost(&serverIP, host, port) < 0) {
+        std::cerr << "SDLNet_ResolveHost error: " << SDLNet_GetError() << std::endl;
+        SDLNet_UDP_Close(udpSocket);
+        SDLNet_Quit();
+        SDL_Quit();
+    }
+}
+
+
 
 
 

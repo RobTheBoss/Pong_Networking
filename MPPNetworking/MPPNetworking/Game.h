@@ -2,11 +2,32 @@
 #include <SDL2/SDL_ttf.h>
 #include "Player.h"
 #include "Ball.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_net.h>
 #include <iostream>
+#include <cstring>
+#include <sstream>
+#include <thread>
 
 class Game {
+private:
+    SDL_Window* window;
+    SDL_Renderer* renderer;
+    Player player1 = Player(SCREEN_WIDTH, SCREEN_HEIGHT);
+    Player player2 = Player(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    SDL_Texture* textTexture;
+    TTF_Font* font;
+    SDL_Surface* textSurface;
+    SDL_Rect textRect;
+
+    int player1score;
+    int player2score;
+
+    bool isHost;
+
 public:
-    Game();
+    Game(bool isHost_);
 
     ~Game() = default;
 
@@ -17,8 +38,6 @@ public:
     void handleEvents(SDL_Event &e);
 
     void update();
-
-
 
     void render();
 
@@ -40,22 +59,5 @@ public:
     static const int SCREEN_HEIGHT = 640;
 
     bool checkForPaddleCollision(SDL_Rect paddle);
-
     void checkForWallCollision();
-
-private:
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    Player player1 = Player(SCREEN_WIDTH, SCREEN_HEIGHT);
-    Player player2 = Player(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    SDL_Texture *textTexture;
-    TTF_Font *font;
-    SDL_Surface *textSurface;
-    SDL_Rect textRect;
-
-
-    int player1score;
-    int player2score;
-
 };

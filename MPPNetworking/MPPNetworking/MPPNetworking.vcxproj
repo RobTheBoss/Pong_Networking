@@ -22,15 +22,11 @@
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="NetworkManager.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="UDPClient.cpp" />
-    <ClCompile Include="UDPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="NetworkManager.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="rapidjson\allocators.h" />
     <ClInclude Include="rapidjson\cursorstreamwrapper.h" />
@@ -53,8 +49,6 @@
     <ClInclude Include="rapidjson\stringbuffer.h" />
     <ClInclude Include="rapidjson\uri.h" />
     <ClInclude Include="rapidjson\writer.h" />
-    <ClInclude Include="UDPClient.h" />
-    <ClInclude Include="UDPServer.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\arial.ttf" />

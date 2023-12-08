@@ -7,8 +7,8 @@
 
 Ball ball(Game::SCREEN_WIDTH, Game::SCREEN_HEIGHT);
 
-Game::Game() : window(nullptr), renderer(nullptr), isRunning(false) {
-    
+Game::Game(bool isHost_) : window(nullptr), renderer(nullptr), isRunning(false) {
+    isHost = isHost_;
 }
 
 int Game::initialize() {
@@ -18,7 +18,6 @@ int Game::initialize() {
                               SDL_WINDOWPOS_CENTERED,
                               SCREEN_WIDTH, SCREEN_HEIGHT,
                               SDL_WINDOW_SHOWN);
-
     if (!window) {
         std::cout << "Window could not be created!" << std::endl
                   << "SDL_Error: " << SDL_GetError() << std::endl;
@@ -33,6 +32,32 @@ int Game::initialize() {
         return 1;
     } 
     
+    ///SERVER
+    ///////////////////////
+    if (SDLNet_Init() < 0) {
+        SDL_Log("SDLNet initialization failed: %s", SDLNet_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    UDPsocket udpSocket;
+    if (isHost)
+        udpSocket = SDLNet_UDP_Open(8080);
+    else
+        udpSocket = SDLNet_UDP_Open(0);
+
+    if (!udpSocket) {
+        SDL_Log("SDLNet_UDP_Open error: %s", SDLNet_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDLNet_Quit();
+        SDL_Quit();
+        return 1;
+    }
+    ///////////////////////
+
     isRunning = true;
     player1.innit(true);
     player2.innit(false);
@@ -79,25 +104,25 @@ void Game::handleEvents(SDL_Event &e) {
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
         switch (e.key.keysym.sym) {
             case SDLK_UP:
-                player2.move(true);
+                player1.move(true);
                 break;
             case SDLK_DOWN:
-                player2.move(false);
+                player1.move(false);
                 break;
-            case SDLK_w:
+           /* case SDLK_w:
                 player1.move(true);
                 break;
             case SDLK_s:
                 player1.move(false);
-                break;
+                break;*/
         }
     } else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
         switch (e.key.keysym.sym) {
             case SDLK_UP:
-                player2.stopMoving();
+                player1.stopMoving();
                 break;
             case SDLK_DOWN:
-                player2.stopMoving();
+                player1.stopMoving();
                 break;
             case SDLK_w:
                 player1.stopMoving();

@@ -1,7 +1,1 @@
-﻿  Ball.cpp
-C:\Users\Robert\Documents\GitHub\Pong_Networking\MPPNetworking\MPPNetworking\Ball.cpp(22,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Game.cpp
-  Player.cpp
-  main.cpp
-  Generating Code...
-  MPPNetworking.vcxproj -> C:\Users\Robert\Documents\GitHub\Pong_Networking\MPPNetworking\x64\Debug\MPPNetworking.exe
+﻿  MPPNetworking.vcxproj -> C:\Users\Robert\Documents\GitHub\Pong_Networking\MPPNetworking\x64\Debug\MPPNetworking.exe

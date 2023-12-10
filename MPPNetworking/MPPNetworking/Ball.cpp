@@ -54,7 +54,7 @@ void Ball::innit() {
 }
 
 void Ball::render(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0xFF);
     SDL_RenderFillRect(renderer, &ball);
 }
 

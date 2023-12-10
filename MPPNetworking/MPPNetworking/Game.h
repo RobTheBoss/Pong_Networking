@@ -28,7 +28,7 @@ public:
 
     ~Game() = default;
 
-    int init(UDPsocket& udpSocket, IPaddress& serverIP);
+    int init(UDPsocket& udpSocket, IPaddress& serverIP, int port_);
 
     int startGame();
 
@@ -60,6 +60,9 @@ public:
     bool checkForPaddleCollision(SDL_Rect paddle);
     void checkForWallCollision();
 
-    void ReceiveData(UDPsocket udpSocket_, IPaddress ip_, bool &quit);
-    void SendData(UDPsocket udpSocket_, IPaddress ip_, bool &quit);
+    void SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool &quit);
+    void ReceiveData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool &quit);
+
+    std::string serializeData(const int& ballX_, const int& ballY_);
+    bool deserializeData(const std::string& json);
 };

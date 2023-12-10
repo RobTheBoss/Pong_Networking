@@ -12,6 +12,12 @@ public:
     void update();
 
     SDL_Rect getBall() const { return ball; }
+    inline void setBallPos(int x_, int y_) {
+
+        ball.x = x_;
+        ball.y = y_;
+    }
+
     SDL_Point getVelocity() const { return velocity; }
 
 

@@ -93,11 +93,11 @@ int Game::init(UDPsocket& udpSocket, IPaddress& serverIP, int port_)
     {
         FontPath = SDL_GetBasePath() + FontPath;
         font = TTF_OpenFont(FontPath.c_str(), 50); //Exe mode path
-    }
 
-    if (!font) {
-        std::cout << "TTF_OpenFont() failed: " << TTF_GetError() << std::endl;
-        return 1;
+        if (!font) {
+            std::cout << "TTF_OpenFont() failed: " << TTF_GetError() << std::endl;
+            return 1;
+        }
     }
 
     SDL_Color textColor = { 0, 0, 0, 0xFF }; // Adjust the text color as needed
@@ -227,10 +227,13 @@ void Game::update() {
     //And update ball position/velocity on host
     if (isHost)
     {
-        if (checkForPaddleCollision(player1.getPaddle()) ||
-            checkForPaddleCollision(player2.getPaddle())) {
+        if (checkForPaddleCollision(player1.getPaddle())) {
             int curXVelocity = ball.getVelocity().x;
-            ball.setVelocity({ -curXVelocity, ball.getVelocity().y });
+            ball.setVelocity({ abs(curXVelocity), ball.getVelocity().y });
+        }
+        else if (checkForPaddleCollision(player2.getPaddle())) {
+            int curXVelocity = ball.getVelocity().x;
+            ball.setVelocity({ -abs(curXVelocity), ball.getVelocity().y });
         }
         else {
             checkForWallCollision();
@@ -256,6 +259,7 @@ void Game::render() {
     SDL_RenderPresent(renderer);
 }
 void Game::cleanup() {
+    SDLNet_FreePacket(receivePacket);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_FreeSurface(textSurface);
@@ -303,20 +307,15 @@ void Game::checkForWallCollision() {
 
 void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
 {
-    ip_.port = port_;
-
     if (isHost) ///SERVER
     {
         std::cout << "UDP server is running and listening on port " << port_ << std::endl;
 
         while (!quit) {
-            auto msg_data = serializeData(ball.getBall().x, ball.getBall().x);
+            auto msg_data = serializeData();
 
             // SEND
             UDPpacket* packet = SDLNet_AllocPacket(msg_data.size() + 1); // +1 for null terminator
-            packet->len = msg_data.size();
-            packet->address.port = port_;
-
             if (!packet) {
                 SDL_Log("SDLNet_AllocPacket error: %s", SDLNet_GetError());
                 SDLNet_UDP_Close(udpSocket_);
@@ -324,14 +323,16 @@ void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
                 return;
             }
 
-            if (packet) {
-                memcpy(packet->data, msg_data.c_str(), msg_data.size());
+            packet->address = receivePacket->address;
+            packet->len = msg_data.size();
 
-                if (SDLNet_UDP_Send(udpSocket_, -1, packet) == 0) {
-                    std::cerr << "SDLNet_UDP_Send error: " << SDLNet_GetError() << std::endl;
-                }
+           
+            memcpy(packet->data, msg_data.c_str(), msg_data.size());
+
+            if (SDLNet_UDP_Send(udpSocket_, -1, packet) == 0) {
+                std::cerr << "SDLNet_UDP_Send error: " << SDLNet_GetError() << std::endl;
             }
-
+            
             SDLNet_FreePacket(packet);
             SDL_Delay(16); // Cap the sending rate to approximately 60 FPS
         }
@@ -340,11 +341,7 @@ void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
     else ///CLIENT
     { 
         while (!quit) {
-            // Construct the message with the 'x' and 'y' coordinates of the square
-            rapidjson::StringBuffer s;
-            rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-
-            std::string msg_data = serializeData(ball.getBall().x, ball.getBall().y);
+            std::string msg_data = serializeData();
 
             // Create a UDP packet to send the position to the server
             UDPpacket* packet = SDLNet_AllocPacket(msg_data.size() + 1);
@@ -358,7 +355,6 @@ void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
                 }
             }
 
-
             SDLNet_FreePacket(packet);
             SDL_Delay(16); // Cap the sending rate to approximately 60 FPS
         }
@@ -366,7 +362,7 @@ void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
 }
 void Game::ReceiveData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
 {
-    UDPpacket* receivePacket = SDLNet_AllocPacket(1024);
+    receivePacket = SDLNet_AllocPacket(1024);
 
     if (!receivePacket) {
         SDL_Log("SDLNet_AllocPacket error: %s", SDLNet_GetError());
@@ -379,6 +375,7 @@ void Game::ReceiveData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& qui
     {
         while (!quit) {
             if (SDLNet_UDP_Recv(udpSocket_, receivePacket)) {
+                isRunning = true;
                 IPaddress clientAddress = receivePacket->address;
                 Uint16 clientPort = clientAddress.port;
                 const char* clientHost = SDLNet_ResolveIP(&clientAddress);
@@ -410,16 +407,23 @@ void Game::ReceiveData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& qui
     SDLNet_FreePacket(receivePacket);
 }
 
-std::string Game::serializeData(const int& ballX_, const int& ballY_)
+std::string Game::serializeData()
 {
     rapidjson::StringBuffer s;
     rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
     writer.StartObject();
+
     writer.Key("ballX");
     writer.Int(ball.getBall().x);
     writer.Key("ballY");
     writer.Int(ball.getBall().y);
+    writer.Key("playerY");
+    if (isHost)
+        writer.Int(player1.getPaddle().y);
+    else
+        writer.Int(player2.getPaddle().y);
+
     writer.EndObject();
 
     return s.GetString();
@@ -433,14 +437,21 @@ bool Game::deserializeData(const std::string& json)
         return false;
     }
 
-    const rapidjson::Value& xVal = doc["ballXx"];
-    const rapidjson::Value& yVal = doc["ballY"];
+    const rapidjson::Value& ballXVal = doc["ballX"];
+    const rapidjson::Value& ballYVal = doc["ballY"];
+    const rapidjson::Value& playerYVal = doc["playerY"];
 
-    if (!xVal.IsInt() || !yVal.IsInt()) {
+    if (!ballXVal.IsInt() || !ballYVal.IsInt() || !playerYVal.IsInt()) {
         return false; //keeps on returning false when parsing
     }
 
-    ball.setBallPos(xVal.GetInt(), yVal.GetInt());
+    if (!isHost)
+        ball.setBallPos(ballXVal.GetInt(), ballYVal.GetInt());
+
+    if (isHost)
+        player2.setPosY(playerYVal.GetInt());
+    else
+        player1.setPosY(playerYVal.GetInt());
 
     return true;
 }

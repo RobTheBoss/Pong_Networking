@@ -24,26 +24,32 @@ void Ball::innit() {
 
     switch (rand) {
         case 0:
+            ball.x -= 200;
             velocity.y = SPEED;
             velocity.x = SPEED;
             break;
         case 1:
+            ball.x += 200;
             velocity.y = -SPEED;
             velocity.x = -SPEED;
             break;
         case 2:
+            ball.x += 200;
             velocity.y = SPEED;
             velocity.x = -SPEED;
             break;
         case 3:
+            ball.x -= 200;
             velocity.y = -SPEED;
             velocity.x = SPEED;
             break;
         case 4:
+            ball.x -= 200;
             velocity.y = SPEED/2;
             velocity.x = SPEED;
             break;
         case 5:
+            ball.x += 200;
             velocity.y = SPEED/2;
             velocity.x = -SPEED;
 

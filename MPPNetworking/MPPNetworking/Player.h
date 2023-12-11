@@ -22,4 +22,6 @@ public:
     void render(SDL_Renderer *renderer);
 
     void update();
+
+    inline void setPosY(int y_) { paddle.y = y_; }
 };

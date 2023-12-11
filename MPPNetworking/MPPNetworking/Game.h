@@ -23,6 +23,8 @@ private:
 
     bool isHost;
 
+    UDPpacket* receivePacket;
+
 public:
     Game(bool isHost_);
 
@@ -63,6 +65,6 @@ public:
     void SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool &quit);
     void ReceiveData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool &quit);
 
-    std::string serializeData(const int& ballX_, const int& ballY_);
+    std::string serializeData();
     bool deserializeData(const std::string& json);
 };

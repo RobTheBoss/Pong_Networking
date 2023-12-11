@@ -34,7 +34,7 @@ public:
 
     int startGame();
 
-    void cleanup();
+    void cleanup(UDPsocket socket_);
 
     void handleEvents(SDL_Event &e);
 

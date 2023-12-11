@@ -175,7 +175,7 @@ int Game::startGame() {
     sendThread.join();
     receiveThread.join();
 
-    cleanup();
+    cleanup(udpSocket);
 
     return 0;
 }
@@ -258,8 +258,11 @@ void Game::render() {
     // Update screen
     SDL_RenderPresent(renderer);
 }
-void Game::cleanup() {
+void Game::cleanup(UDPsocket socket_) {
     SDLNet_FreePacket(receivePacket);
+    SDLNet_UDP_Close(socket_);
+    SDLNet_Quit();
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_FreeSurface(textSurface);
@@ -403,8 +406,6 @@ void Game::ReceiveData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& qui
             }
         }
     }
-
-    SDLNet_FreePacket(receivePacket);
 }
 
 std::string Game::serializeData()

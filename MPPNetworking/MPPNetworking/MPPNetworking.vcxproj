@@ -23,6 +23,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="ScoreKeeping.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
@@ -49,6 +50,7 @@
     <ClInclude Include="rapidjson\stringbuffer.h" />
     <ClInclude Include="rapidjson\uri.h" />
     <ClInclude Include="rapidjson\writer.h" />
+    <ClInclude Include="ScoreKeeping.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\arial.ttf" />

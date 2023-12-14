@@ -1,1 +1,16 @@
-﻿  MPPNetworking.vcxproj -> C:\Users\Robert\Documents\GitHub\Pong_Networking\MPPNetworking\x64\Debug\MPPNetworking.exe
+﻿  Ball.cpp
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Ball.cpp(22,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Game.cpp
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.cpp(329,75): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.cpp(334,68): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.cpp(343,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.cpp(363,68): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\Game.cpp(366,44): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  main.cpp
+  Player.cpp
+  ScoreKeeping.cpp
+  Generating Code...
+C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\MPPNetworking\main.cpp(55): warning C4715: 'Setup': not all control paths return a value
+  MPPNetworking.vcxproj -> C:\Users\Zavio\Desktop\Rooandzavior\Pong_Networking\MPPNetworking\x64\Debug\MPPNetworking.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

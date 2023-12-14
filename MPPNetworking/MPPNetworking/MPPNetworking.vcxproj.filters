@@ -30,6 +30,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ScoreKeeping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h">
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="rapidjson\writer.h">
       <Filter>rapidJson</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreKeeping.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

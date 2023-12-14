@@ -4,6 +4,7 @@
 //#include "SDL.h"
 #include <SDL2/SDL.h>
 #include "Game.h"
+#include "ScoreKeeping.h"
 
 const int TARGET_FPS = 60;
 const int DELAY_TIME = 1000 / TARGET_FPS;
@@ -15,9 +16,9 @@ void StartGame(Game* game_) {
     }
 }
 
-bool Setup() {
+bool Setup(bool& isHost_, bool& isScoreKeeper) {
 
-    std::cout << "H for host, C for client" << std::endl;
+    std::cout << "H for host, C for client, S for Scorekeeper" << std::endl;
     while (1)
     {
         char Input[1024];
@@ -36,23 +37,38 @@ bool Setup() {
 
         if (strcmp(Input, "H") == 0) {
             printf("You are the host.\n");
-            return true;
+            isHost_ = true;
             break;  // Exit the loop upon valid answer
         }
         else if (strcmp(Input, "C") == 0) {
             printf("You are the client.\n");
-            return false;
+            isHost_ = false;
+            break;  // Exit the loop upon valid answer
+        }
+        else if (strcmp(Input, "S") == 0) {
+            printf("Scorekeeper.\n");
+            isHost_ = true;
+            isScoreKeeper = true;
             break;  // Exit the loop upon valid answer
         }
     }
 }
 
 int main(int argc, char* argv[]) {
-    bool isHost;
-    isHost = Setup();
+    bool isHost = false;
+    bool isScoreKeeper = false;
+    Setup(isHost, isScoreKeeper);
 
-    Game* game = new Game(isHost);;
-    StartGame(game);
+    if (!isScoreKeeper)
+    {
+        Game* game = new Game(isHost);;
+        StartGame(game);
+    }
+    else
+    {
+        ScoreKeeping* scoreKeeper = new ScoreKeeping();
+        scoreKeeper->init(NULL, 8080);
+    }
 
     return 1;
 }

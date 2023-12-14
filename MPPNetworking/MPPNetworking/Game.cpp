@@ -85,6 +85,10 @@ int Game::init(UDPsocket& udpSocket, IPaddress& serverIP, int port_)
         }
     }
 
+    IPaddress tcpIP;
+    SDLNet_ResolveHost(&tcpIP, "127.0.0.1", port_);
+    tcpSocket = SDLNet_TCP_Open(&tcpIP);
+
     //Load font
     std::string FontPath = "resources/arial.ttf";
     font = TTF_OpenFont(FontPath.c_str(), 50); //Debug mode path
@@ -124,6 +128,7 @@ int Game::init(UDPsocket& udpSocket, IPaddress& serverIP, int port_)
 
 int Game::startGame() {
     UDPsocket udpSocket;
+
     IPaddress serverIP;
     int port = 8080;
 
@@ -261,6 +266,7 @@ void Game::render() {
 void Game::cleanup(UDPsocket socket_) {
     SDLNet_FreePacket(receivePacket);
     SDLNet_UDP_Close(socket_);
+    SDLNet_TCP_Close(tcpSocket);
     SDLNet_Quit();
 
     SDL_DestroyRenderer(renderer);
@@ -269,6 +275,7 @@ void Game::cleanup(UDPsocket socket_) {
     SDL_DestroyTexture(textTexture);
     TTF_CloseFont(font);
     TTF_Quit();
+    SDL_Quit();
 }
 
 bool Game::checkForPaddleCollision(SDL_Rect paddle) {
@@ -315,6 +322,12 @@ void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
         std::cout << "UDP server is running and listening on port " << port_ << std::endl;
 
         while (!quit) {
+            //TCP Send
+            auto score_data = serializeScore();
+
+            std::cout << "Server Sending: " << score_data.size() << std::endl;
+            SDLNet_TCP_Send(tcpSocket, score_data.c_str(), score_data.size());
+
             auto msg_data = serializeData();
 
             // SEND
@@ -420,10 +433,16 @@ std::string Game::serializeData()
     writer.Key("ballY");
     writer.Int(ball.getBall().y);
     writer.Key("playerY");
+
     if (isHost)
         writer.Int(player1.getPaddle().y);
     else
         writer.Int(player2.getPaddle().y);
+
+    writer.Key("score1");
+    writer.Int(player1score);
+    writer.Key("score2");
+    writer.Int(player2score);
 
     writer.EndObject();
 
@@ -441,8 +460,11 @@ bool Game::deserializeData(const std::string& json)
     const rapidjson::Value& ballXVal = doc["ballX"];
     const rapidjson::Value& ballYVal = doc["ballY"];
     const rapidjson::Value& playerYVal = doc["playerY"];
+    const rapidjson::Value& score1 = doc["score1"];
+    const rapidjson::Value& score2 = doc["score2"];
 
-    if (!ballXVal.IsInt() || !ballYVal.IsInt() || !playerYVal.IsInt()) {
+    if (!ballXVal.IsInt() || !ballYVal.IsInt() || !playerYVal.IsInt()
+        || !score1.IsInt() || !score2.IsInt()) {
         return false; //keeps on returning false when parsing
     }
 
@@ -450,9 +472,54 @@ bool Game::deserializeData(const std::string& json)
         ball.setBallPos(ballXVal.GetInt(), ballYVal.GetInt());
 
     if (isHost)
+    {
         player2.setPosY(playerYVal.GetInt());
+    }
     else
+    {
         player1.setPosY(playerYVal.GetInt());
+        player1score = score1.GetInt();
+        player2score = score2.GetInt();
+    }
+
+    return true;
+}
+
+std::string Game::serializeScore()
+{
+    rapidjson::StringBuffer s;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+
+    writer.StartObject();
+
+    writer.Key("score1");
+    writer.Int(player1score);
+    writer.Key("score2");
+    writer.Int(player2score);
+
+    writer.EndObject();
+
+    return s.GetString();
+}
+
+bool Game::deserializeScore(const std::string& json)
+{
+    rapidjson::Document doc;
+    doc.Parse(json.c_str());
+
+    if (!doc.IsObject()) {
+        return false;
+    }
+
+    const rapidjson::Value& score1 = doc["score1"];
+    const rapidjson::Value& score2 = doc["score2"];
+
+    if (!score1.IsInt() || !score2.IsInt()) {
+        return false; //keeps on returning false when parsing
+    }
+
+    player1score = (score1.GetInt());
+    player2score = (score2.GetInt());
 
     return true;
 }

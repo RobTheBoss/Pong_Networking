@@ -25,6 +25,8 @@ private:
 
     UDPpacket* receivePacket;
 
+    TCPsocket tcpSocket;
+
 public:
     Game(bool isHost_);
 
@@ -67,4 +69,7 @@ public:
 
     std::string serializeData();
     bool deserializeData(const std::string& json);
+
+    std::string serializeScore();
+    bool deserializeScore(const std::string& json);
 };

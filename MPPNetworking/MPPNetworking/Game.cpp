@@ -164,6 +164,7 @@ int Game::startGame() {
             }
         }
 
+
         render();
 
         if (!isRunning)
@@ -225,11 +226,21 @@ void Game::handleEvents(SDL_Event &e) {
 }
 void Game::update() {
     // Update game objects (e.g., player, ball, background)
+
     player1.update();
     player2.update();
 
+
+
+    if (!isRunning)
+        return;
+       
+
+
+
     //Only check for collisions
     //And update ball position/velocity on host
+
     if (isHost)
     {
         if (checkForPaddleCollision(player1.getPaddle())) {
@@ -245,6 +256,18 @@ void Game::update() {
         }
 
         ball.update();
+    }
+
+    if (player1score == 10) {
+        isRunning = false;
+        printf(" Player1 Win!!!!!");
+
+    }
+
+    if (player2score == 10) {
+        isRunning = false;
+        printf(" Player2 Win!!!!!");
+
     }
 }
 void Game::render() {

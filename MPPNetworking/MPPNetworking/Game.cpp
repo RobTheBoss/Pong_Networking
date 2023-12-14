@@ -190,9 +190,6 @@ void Game::handleEvents(SDL_Event &e) {
         switch (e.key.keysym.sym) {
             if (isHost)
             { 
-                case SDLK_0:
-                    isRunning = true;
-                    break;
                 case SDLK_UP:
                     if (isHost)
                         player1.move(true);
@@ -229,14 +226,6 @@ void Game::update() {
 
     player1.update();
     player2.update();
-
-
-
-    if (!isRunning)
-        return;
-       
-
-
 
     //Only check for collisions
     //And update ball position/velocity on host
@@ -342,13 +331,13 @@ void Game::SendData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& quit)
 {
     if (isHost) ///SERVER
     {
-        std::cout << "UDP server is running and listening on port " << port_ << std::endl;
+        //std::cout << "UDP server is running and listening on port " << port_ << std::endl;
 
         while (!quit) {
             //TCP Send
             auto score_data = serializeScore();
 
-            std::cout << "Server Sending: " << score_data.size() << std::endl;
+            //std::cout << "Server Sending: " << score_data.size() << std::endl;
             SDLNet_TCP_Send(tcpSocket, score_data.c_str(), score_data.size());
 
             auto msg_data = serializeData();
@@ -414,12 +403,17 @@ void Game::ReceiveData(UDPsocket udpSocket_, IPaddress ip_, int port_, bool& qui
     {
         while (!quit) {
             if (SDLNet_UDP_Recv(udpSocket_, receivePacket)) {
-                isRunning = true;
+                if (!clientJoined)
+                {
+                    isRunning = true;
+                    clientJoined = true;
+                }
+
                 IPaddress clientAddress = receivePacket->address;
                 Uint16 clientPort = clientAddress.port;
                 const char* clientHost = SDLNet_ResolveIP(&clientAddress);
 
-                std::cout << "Received from client " << clientHost << ":" << clientPort << ": " << receivePacket->data << std::endl;
+                //std::cout << "Received from client " << clientHost << ":" << clientPort << ": " << receivePacket->data << std::endl;
 
                 //store packet data in receive buffer
                 char* receiveBuffer = reinterpret_cast<char*>(receivePacket->data);

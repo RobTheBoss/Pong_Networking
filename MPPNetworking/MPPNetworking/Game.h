@@ -57,6 +57,7 @@ public:
     std::cout << "Player 2 score: " << player2score << std::endl;}
 
     bool isRunning;
+    bool clientJoined = false;
 
     static const int SCREEN_WIDTH = 800;
     static const int SCREEN_HEIGHT = 640;
